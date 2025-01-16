@@ -1,42 +1,15 @@
 import nodejieba from 'nodejieba';
-import hskDictionaryData from './dict_hsk.json';
-import fs from 'fs/promises';
+import hskDictionaryData from './data/dict_hsk.json';
+import { HSKWordAnalysis, HSKTextAnalysis, HSKLevel } from './types/index';
 
-// Types for our analysis results
-type HSKWordAnalysis = {
-    word: string;
-    count: number;
-    hskLevel: number;  // 0 if not found in HSK
-};
-
-type HSKLevelStats = {
-    totalWords: number;       // total occurrences of words at this level
-    uniqueWords: number;      // number of unique words at this level
-    words: HSKWordAnalysis[];    // detailed word information
-};
-
-type HSKLevel = 0|1|2|3|4|5|6|7|8|9;
-
-type HSKTextAnalysis = {
-    // Overall statistics
-    totalWords: number;           // total words in text (including repeats)
-    uniqueWords: number;          // total unique words in text
-    
-    // HSK level statistics
-    hskLevels: {
-        [key in HSKLevel]: HSKLevelStats;    // 0 is used for words that don't exist in hskDictionary
+export function serializeAnalysis(analysis: HSKTextAnalysis) {
+    return {
+        ...analysis,
+        wordToAnalysis: Object.fromEntries(analysis.wordToAnalysis),
     };
-    
-    // Quick lookup maps
-    wordToAnalysis: Map<string, HSKWordAnalysis>;  // quick word lookup
-    
-    // Helper methods
-    getWordInfo: (word: string) => HSKWordAnalysis | undefined;
-    getHSKLevelCount: (level: number) => number;
-    getWordsAtLevel: (level: number) => HSKWordAnalysis[];
-};
+}
 
-class ChineseTextAnalyzer {
+export class ChineseTextAnalyzer {
   private hskDictionary: Map<string,number>;
   
   constructor() {
@@ -107,13 +80,3 @@ class ChineseTextAnalyzer {
     }
   }
 }
-
-async function main() {
-  const textFile = process.argv[2];
-  const text = await fs.readFile(textFile, 'utf8');
-  const analyzer = new ChineseTextAnalyzer();
-  const analysis = analyzer.hskAnalysis(text);
-  console.log(analysis);
-}
-
-main();
