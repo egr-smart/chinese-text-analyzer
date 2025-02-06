@@ -1,6 +1,11 @@
 {
   "name": "chinese-text-analyzer",
   "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "description": "full stack application to analyse the complexity of chinese texts",
   "author": "Edward Smart",
   "license": "ISC",
@@ -8,11 +13,12 @@
     "build:backend": "pnpm --filter backend build",
     "start:backend": "pnpm --filter backend start",
     "dev:backend": "pnpm --filter backend dev",
-    "test:backend": "pnpm --filter backend test"
+    "test:backend": "pnpm --filter backend test",
+    "build:frontend": "pnpm --filter frontend build",
+    "lint:frontend": "pnpm --filter frontend lint",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "preview:frontend": "pnpm --filter frontend preview"
   },
-  "workspaces": [
-    "apps/*"
-  ],
   "devDependencies": {
     "typescript": "^5.7.3"
   }
