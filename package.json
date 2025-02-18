@@ -4,7 +4,8 @@
   "private": true,
   "workspaces": [
     "frontend",
-    "backend"
+    "backend",
+    "packages"
   ],
   "description": "full stack application to analyse the complexity of chinese texts",
   "author": "Edward Smart",

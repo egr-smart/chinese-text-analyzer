@@ -1,6 +1,6 @@
 import nodejieba from 'nodejieba';
 import hskDictionaryData from './data/dict_hsk.json';
-import { HSKWordAnalysis, HSKTextAnalysis, HSKLevel } from './types/index';
+import { HSKWordAnalysis, HSKTextAnalysis, HSKLevel } from '@cta/types';
 
 export function serializeAnalysis(analysis: HSKTextAnalysis) {
     return {

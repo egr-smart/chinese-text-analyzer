@@ -4,11 +4,12 @@
   "description": "backend for chinese-text-analyzer",
   "scripts": {
     "build": "tsc",
-    "start": "node ../../dist/backend/server.js",
+    "start": "node dist/backend/server.js",
     "dev": "ts-node src/server.ts",
-    "test": "ts-node testUpload.ts src/test-subtitles.srt"
+    "test": "ts-node testUpload.ts src/test-subtitles.txt"
   },
   "dependencies": {
+    "@cta/types": "workspace:^",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "nodejieba": "^3.4.4"

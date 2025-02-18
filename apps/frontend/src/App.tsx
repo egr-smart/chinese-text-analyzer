@@ -1,20 +1,46 @@
+import { HSKTextAnalysis } from '@cta/types';
 import { useState } from "react";
 
 export default function FileUploader() {
-  const [file, setFile] = useState(null);
-  const [text, setText] = useState("");
-  const [analysis, setAnalysis] = useState(null);
-  const [error, setError] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [text, setText] = useState<string>("");
+  const [analysis, setAnalysis] = useState<HSKTextAnalysis | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
       const reader = new FileReader();
-      reader.onload = (e) => setText(e.target.result);
+      reader.onload = (e) => {
+        // load result into variable, validate data and catch any errors before setting the text
+        try {
+          const text = e.target?.result;
+          if (typeof text !== "string") {
+            throw new Error("Invalid file content: expected text format");
+          }
+          validateText(text);
+          setText(removeNonChineseText(text));
+        } catch (err) {
+          if (err instanceof Error) setError(err.message);
+        }
+      };
       reader.readAsText(selectedFile);
-    }
+    } 
   };
+
+  const validateText = (text:string) => {
+    if (!text.trim()) {
+      throw new Error("File is empty.");
+    }
+    if (!/[\u4e00-\u9fff]/.test(text)) {
+      throw new Error("File must contain Chinese characters.");
+    }
+  }
+
+  const removeNonChineseText = (text:string) => {
+    return text.replace(/[^\u4e00-\u9fff]/g, ""); // the regex \u4e00-\u9fff matches all common Chinese chars (traditional and simplified)
+  }
 
   const handleUpload = async () => {
     if (!text) {
@@ -34,7 +60,7 @@ export default function FileUploader() {
       const data = await response.json();
       setAnalysis(data);
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) setError(err.message);
     }
   };
 
@@ -52,7 +78,33 @@ export default function FileUploader() {
       {analysis && (
         <div className="mt-4 p-4 border rounded">
           <h3 className="font-semibold">Analysis Result:</h3>
-          <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(analysis, null, 2)}</pre>
+          <table className="w-full border-collapse border border-gray-300 mt-2">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 p-2">HSK Level</th>
+                <th className="border border-gray-300 p-2">Word Count</th>
+                <th className="border border-gray-300 p-2">Unique Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(analysis.hskLevels)
+                  .sort(([a], [b]) => (a === "0" ? 1 : b === "0" ? -1 : a - b))
+                  .map(([level, stats]) => (
+                <tr key={level}>
+                  <td className="border border-gray-300 p-2">{level == 0 ? 'Unknown' : level}</td>
+                  <td className="border border-gray-300 p-2">{stats.totalWords}</td>
+                  <td className="border border-gray-300 p-2">{stats.uniqueWords}</td>
+                </tr>
+              ))}
+              <tr>
+                <td className="border border-gray-300 p-2">{'Total'}</td>
+                <td className="border border-gray-300 p-2">{analysis.totalWords}</td>
+                <td className="border border-gray-300 p-2">{analysis.uniqueWords}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p className="mt-2">Total Words: {analysis.totalWords}</p>
+          <p>Unique Words: {analysis.uniqueWords}</p>
         </div>
       )}
     </div>
