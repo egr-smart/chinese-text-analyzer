@@ -6,6 +6,7 @@ export default function FileUploader() {
   const [text, setText] = useState<string>("");
   const [analysis, setAnalysis] = useState<HSKTextAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -49,7 +50,7 @@ export default function FileUploader() {
     }
     setError(null);
     try {
-      const response = await fetch("http://localhost:3000/api/analyze", {
+      const response = await fetch(`${API_URL}/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
